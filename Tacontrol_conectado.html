@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaControl - Punto de Venta Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --orange-main: #e27814fd;
+            --orange-dark: #232594; 
+            --bg-light: #F4F5F7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --blue-icon: #4A90E2;
+            --gray-border: #CCCCCC;
+            --green-success: #2daf28;
+            --red-danger: #dc3545;
+            --purple-accent: #A3649F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- PANTALLA DE LOGIN --- */
+        .login-container {
+            display: flex;
+            width: 850px;
+            height: 500px;
+            background: var(--white);
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(175, 84, 84, 0.15);
+            overflow: hidden;
+        }
+
+        .login-left {
+            background-color: var(--orange-main);
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+        }
+
+        .login-left h1 {
+            font-size: 2rem;
+            font-style: italic;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .pos-icon-circle {
+            background-color: var(--purple-accent);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .pos-icon-circle i { font-size: 4.5rem; color: var(--white); }
+        .login-left h2 { font-size: 1.5rem; font-style: italic; font-weight: 600; }
+
+        .login-right {
+            width: 50%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .user-avatar-circle {
+            width: 130px;
+            height: 130px;
+            background-color: #71a3e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .user-avatar-circle i { font-size: 7.5rem; color: var(--white); margin-bottom: -10px; }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            width: 80%;
+            margin-bottom: 20px;
+            background: var(--white);
+            border: 1px solid var(--gray-border);
+            border-radius: 2px;
+            padding: 4px 10px;
+        }
+
+        .input-group input, .form-control-inline input, .form-control-inline select {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        .btn-login {
+            background-color: var(--orange-main);
+            color: var(--white);
+            border: none;
+            padding: 10px 35px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        .btn-login:hover { background-color: var(--orange-dark); }
+
+        /* --- PANEL PRINCIPAL --- */
+        .main-app {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--orange-main);
+            color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        header h1 { font-style: italic; font-size: 1.6rem; }
+        .nav-tabs { display: flex; gap: 15px; }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .tab-btn:hover, .tab-btn.active { background-color: rgba(255, 255, 255, 0.2); }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .user-info { font-weight: bold; background: rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.9rem;}
+        .logout-btn { background: transparent; border: 1px solid var(--white); color: var(--white); padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+
+        .app-content { flex: 1; padding: 20px 30px; overflow-y: auto; background-color: var(--bg-light); }
+        .panel-section { display: none; height: 100%; }
+        .panel-section.active { display: block; }
+
+        .grid-pos, .grid-personal, .grid-corte, .grid-inventario {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 20px;
+            align-items: start;
+        }
+        
+        .grid-corte { grid-template-columns: 2fr 1fr; }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--orange-main);
+            padding-bottom: 5px;
+            color: var(--orange-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-categories { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #DDD; padding-bottom: 10px; }
+        .cat-btn { background-color: #E4E6EB; border: none; padding: 10px 16px; font-weight: bold; border-radius: 20px; cursor: pointer; }
+        .cat-btn.active, .cat-btn:hover { background-color: var(--orange-main); color: var(--white); }
+
+        .menu-grid-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; min-height: 180px; }
+        .menu-item-box { background: var(--bg-light); border: 1px solid #DDD; padding: 12px; text-align: center; border-radius: 6px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+        .menu-item-box:hover { transform: scale(1.02); border-color: var(--orange-main); }
+        .menu-item-box i { font-size: 1.8rem; color: var(--orange-main); margin-bottom: 6px; }
+        .menu-item-box p { font-weight: bold; font-size: 0.9rem; }
+        .menu-item-box span { color: #666; font-size: 0.85rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #DDD; }
+        th { background-color: #F0F0F0; color: #555; font-size: 0.9rem; }
+        td { font-size: 0.9rem; }
+
+        .qty-controls { display: flex; align-items: center; gap: 5px; }
+        .btn-qty { background: #E4E6EB; border: none; width: 24px; height: 24px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+
+        .btn-action { background-color: var(--orange-main); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-action:hover { background-color: var(--orange-dark); }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        
+        /* Botones de acción mejorados */
+        .btn-sm-edit { background-color: var(--blue-icon); color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-sm-edit:hover { background-color: #357ABD; }
+        .btn-sm-delete { background-color: var(--red-danger); color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-sm-delete:hover { background-color: #b21f2d; }
+
+        .total-box { font-size: 1.4rem; font-weight: bold; text-align: right; margin: 15px 0; color: #222; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+        .badge-success { background-color: #D4EDDA; color: #155724; }
+        .badge-warning { background-color: #FFF3CD; color: #856404; }
+        .badge-danger { background-color: #F8D7DA; color: #721c24; }
+
+        .comandas-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .comanda-card { border: 1px solid #DDD; background: #FFF; border-radius: 6px; padding: 15px; }
+        .comanda-card-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px dashed #DDD; padding-bottom: 8px; margin-bottom: 8px; color: var(--orange-dark); }
+        .comanda-card-body { font-size: 0.85rem; color: #555; margin-bottom: 12px; max-height: 100px; overflow-y: auto; }
+        .comanda-card-footer { display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; border-radius: 3px; border: none; cursor: pointer; font-weight: bold; }
+
+        /* Formulario Estilos */
+        .form-control-inline { margin-bottom: 15px; }
+        .form-control-inline label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
+        .form-control-inline div.input-wrap { background: var(--white); border: 1px solid var(--gray-border); border-radius: 4px; padding: 2px; }
+        
+        .btn-group-actions { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-left">
+            <h1>Punto de Venta</h1>
+            <div class="pos-icon-circle"><i class="fa-solid fa-cash-register"></i></div>
+            <h2>TaControl</h2>
+        </div>
+        <div class="login-right">
+            <div class="user-avatar-circle"><i class="fa-solid fa-user"></i></div>
+            <div class="input-group">
+                <i class="fa-solid fa-user" style="color: #5494F3; margin-left: 5px;"></i>
+                <input type="text" id="loginUser" placeholder="Usuario" value="AdminTaquero">
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock" style="color: #D4A316; margin-left: 5px;"></i>
+                <input type="password" id="loginPass" placeholder="Contraseña" value="123">
+            </div>
+            <button class="btn-login" onclick="login()">Iniciar Sesión</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA GENERAL DE LA APP -->
+    <div class="main-app" id="mainApp">
+        <header>
+            <h1>TaControl 🌮</h1>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" id="tab-pos" onclick="switchTab('pos')"><i class="fa-solid fa-calculator"></i> Nueva Venta</button>
+                <button class="tab-btn" id="tab-pendientes" onclick="switchTab('pendientesTab')"><i class="fa-solid fa-clock-rotate-left"></i> Notas por Cobrar (<span id="lblCountPendientes">0</span>)</button>
+                <button class="tab-btn" id="tab-cobradas" onclick="switchTab('cobradasTab')"><i class="fa-solid fa-receipt"></i> Historial Cobradas</button>
+                <button class="tab-btn" id="tab-inventario" onclick="switchTab('inventario')"><i class="fa-solid fa-boxes-stacked"></i> Inventario</button>
+                <button class="tab-btn" id="tab-usuarios" onclick="switchTab('usuarios')"><i class="fa-solid fa-users"></i> Personal y Accesos</button>
+                <button class="tab-btn" id="tab-corte" onclick="switchTab('corte')"><i class="fa-solid fa-chart-line"></i> Corte de Caja</button>
+            </nav>
+            <div class="header-right">
+                <span class="user-info" id="lblUsuarioActivo"><i class="fa-solid fa-user-tie"></i> Admin</span>
+                <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+            </div>
+        </header>
+
+        <div class="app-content">
+            
+            <!-- SECCIÓN 1: NUEVA VENTA (POS) -->
+            <section id="pos" class="panel-section active">
+                <div class="grid-pos">
+                    <div class="card">
+                        <h3>Menú Digital Dinámico</h3>
+                        <div class="menu-categories">
+                            <button class="cat-btn active" onclick="filtrarMenu('tacos', event)">🌮 Tacos</button>
+                            <button class="cat-btn" onclick="filtrarMenu('tortas', event)">🥪 Tortas</button>
+                            <button class="cat-btn" onclick="filtrarMenu('quesadillas', event)">🧀 Quesadillas</button>
+                            <button class="cat-btn" onclick="filtrarMenu('bebidas', event)">🥤 Bebidas</button>
+                        </div>
+                        <div class="menu-grid-items" id="menuItemsContainer"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Orden Actual <span id="lblNotaModificando" style="font-size:0.9rem; color:#666; font-weight: bold;">(Nueva Comanda)</span></h3>
+                        <table id="tablaOrden">
+                            <thead>
+                                <tr><th>Item / Carne</th><th>Cant.</th><th>Precio</th><th>Total</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="total-box">Total: $<span id="txtTotal">0.00</span></div>
+                        <div style="display:flex; gap:10px; flex-direction:column;">
+                            <button class="btn-action btn-secondary" style="width: 100%;" onclick="mandarAColaPendientes()">
+                                <i class="fa-solid fa-layer-group"></i> Mandar a Notas por Cobrar / Guardar
+                            </button>
+                            <button class="btn-action" style="width: 100%; padding: 12px; background-color: var(--green-success);" onclick="cobrarOrdenDirecto()">
+                                <i class="fa-solid fa-cash-register"></i> Cobrar y Finalizar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: NOTAS PENDIENTES -->
+            <section id="pendientesTab" class="panel-section">
+                <div class="card">
+                    <h3>Fila de Notas Pendientes de Pago</h3>
+                    <div class="comandas-list-grid" id="containerPendientes"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: COMANDAS COBRADAS -->
+            <section id="cobradasTab" class="panel-section">
+                <div class="card">
+                    <h3>Historial de Comandas Cobradas</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Folio Nota</th><th>Cajero</th><th>Hora Cobro</th><th>Detalle de Consumo</th><th>Total Pagado</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody id="tbodyCobradas"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: INVENTARIO CON ACTUALIZACIÓN Y ABASTECIMIENTO -->
+            <section id="inventario" class="panel-section">
+                <div class="grid-inventario">
+                    <div class="card">
+                        <h3>Control de Insumos (Mermas en Tiempo Real)</h3>
+                        <table>
+                            <thead><tr><th>Insumo</th><th>Stock Actual</th><th>Unidad</th><th>Estado</th></tr></thead>
+                            <tbody id="tbodyInventario"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <h3><i class="fa-solid fa-truck-ramp-box"></i> Abastecer / Entrada de Almacén</h3>
+                        <form id="formRestock" onsubmit="agregarStockProveedor(event)">
+                            <div class="form-control-inline">
+                                <label>Selecciona el Insumo:</label>
+                                <div class="input-wrap">
+                                    <select id="restockInsumo"><!-- se llena dinámicamente desde la BD --></select>
+                                </div>
+                            </div>
+                            <div class="form-control-inline">
+                                <label>Cantidad a Ingresar:</label>
+                                <div class="input-wrap"><input type="number" step="any" id="restockCantidad" required placeholder="Ej. 10 o 150"></div>
+                            </div>
+                            <button type="submit" class="btn-action" style="width:100%; background-color: var(--blue-icon);"><i class="fa-solid fa-plus"></i> Aplicar Entrada de Producto</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: PERSONAL Y USUARIOS ACCESOS -->
+            <section id="usuarios" class="panel-section">
+                <div class="grid-personal">
+                    <div class="card">
+                        <h3>Plantilla de Empleados y Usuarios de Sistema</h3>
+                        <table>
+                            <thead>
+                                <tr><th>Nombre</th><th>Puesto / Rol</th><th>Usuario</th><th>Contraseña</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tbodyPersonal"></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3 id="lblFormPersonal">Agregar Nuevo Usuario / Cuenta</h3>
+                        <form id="formEmpleado" onsubmit="guardarEmpleado(event)">
+                            <input type="hidden" id="empId" value="">
+                            <div class="form-control-inline">
+                                <label>Nombre Completo:</label>
+                                <div class="input-wrap"><input type="text" id="empNombre" required placeholder="Ej. Pedro Páramo"></div>
+                            </div>
+                            <div class="form-control-inline">
+                                <label>Puesto Desempeñado:</label>
+                                <div class="input-wrap">
+                                    <select id="empPuesto">
+                                        <option value="Administrador">Administrador</option>
+                                        <option value="Taquero Principal">Taquero Principal</option>
+                                        <option value="Cajera / Administración">Cajera / Administración</option>
+                                        <option value="Mesero">Mesero</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="background: #F0F4F8; padding: 10px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid var(--blue-icon);">
+                                <h4 style="font-size: 0.85rem; margin-bottom: 8px; color: var(--blue-icon);"><i class="fa-solid fa-key"></i> Credenciales de Acceso</h4>
+                                <div class="form-control-inline">
+                                    <label>Usuario Login:</label>
+                                    <div class="input-wrap"><input type="text" id="empUser" required placeholder="ej. pedro123"></div>
+                                </div>
+                                <div class="form-control-inline">
+                                    <label>Contraseña:</label>
+                                    <div class="input-wrap"><input type="text" id="empPass" required placeholder="123"></div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-action" style="width:100%">Guardar Personal y Usuario</button>
+                            <button type="button" id="btnCancelarEmp" class="btn-action btn-secondary" style="width:100%; margin-top:8px; display:none;" onclick="limpiarFormPersonal()">Cancelar Edición</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 6: CORTE DE CAJA -->
+            <section id="corte" class="panel-section">
+                <div class="grid-corte">
+                    <div>
+                        <div class="card">
+                            <h3>Resumen General de Auditoría</h3>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                                <div class="card" style="background:#E2F0D9; border: 1px solid #A8D08D; text-align:center; margin-bottom:0;">
+                                    <h4>Venta Total Bruta</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #385723; margin-top:10px;">$<span id="txtVentaHistorica">0.00</span></p>
+                                </div>
+                                <div class="card" style="background:#FFF2CC; border: 1px solid #FFE699; text-align:center; margin-bottom:0;">
+                                    <h4>Órdenes Cobradas</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #7F6000; margin-top:10px;"><span id="txtOrdenesCount">0</span></p>
+                                </div>
+                                <div class="card" style="background:#DEEBF7; border: 1px solid #B4C6E7; text-align:center; margin-bottom:0;">
+                                    <h4>Fondo Inic. Caja</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #1F4E79; margin-top:10px;">$500.00</p>
+                                </div>
+                                <div class="card" style="background:#FCE4D6; border: 1px solid #F8CBAD; text-align:center; margin-bottom:0;">
+                                    <h4>Efectivo en Caja Esperado</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #C65911; margin-top:10px;">$<span id="txtEfectivoCaja">500.00</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Ventas Detalladas por Categoría</h3>
+                            <table>
+                                <thead>
+                                    <tr><th>Categoría</th><th>Cantidad Artículos</th><th>Total Dinero ($)</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Tacos</td><td id="corte-cant-tacos">0</td><td>$<span id="corte-dinero-tacos">0.00</span></td></tr>
+                                    <tr><td>Tortas</td><td id="corte-cant-tortas">0</td><td>$<span id="corte-dinero-tortas">0.00</span></td></tr>
+                                    <tr><td>Quesadillas</td><td id="corte-cant-quesadillas">0</td><td>$<span id="corte-dinero-quesadillas">0.00</span></td></tr>
+                                    <tr><td>Bebidas</td><td id="corte-cant-bebidas">0</td><td>$<span id="corte-dinero-bebidas">0.00</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                        <div>
+                            <h3>Estatus de Caja</h3>
+                            <div style="text-align: center; padding: 20px 0;">
+                                <i class="fa-solid fa-lock-open" style="font-size: 4rem; color: var(--green-success); margin-bottom: 10px;"></i>
+                                <h2 style="color: var(--green-success)">CAJA ABIERTA</h2>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Turno Activo</p>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid #DDD; margin: 15px 0;">
+                            <p style="font-size: 0.85rem; color: #555; line-height: 1.4;">El cierre de caja reiniciará los valores acumulados del día y generará una alerta de arqueo total.</p>
+                        </div>
+                        <button class="btn-action btn-danger" style="width: 100%; padding: 15px; margin-top: 20px; font-size: 1rem;" onclick="ejecutarCierreCaja()">
+                            <i class="fa-solid fa-vault"></i> Realizar Cierre de Caja
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        // ============================================================
+        // TACONTROL — Conectado a MySQL vía API PHP (carpeta /api/)
+        // ============================================================
+        const API = 'api/'; // si tus archivos .php quedan en otra ruta, ajusta esto
+
+        // --- Estado en memoria (se llena desde la BD, ya no está hardcodeado) ---
+        let usuarioActivo = null;       // { id, nombre, puesto, usuario }
+        let ordenActual = {};           // { [producto_id]: {id, nombre, precio, cantidad, categoria} }
+        let notaEnEdicionId = null;     // id de la comanda (BD) que se está editando, o null
+        let CATALOGO_CACHE = {};        // { tacos: [...], tortas: [...], ... } igual que antes, pero desde la API
+        let productosPorId = {};        // { [id]: {id, nombre, precio, categoria} } — para lookups rápidos
+        let personalCache = [];         // último listado de personal (para editar sin volver a pedir)
+        let fondoFijoCaja = 500.00;     // valor de referencia, no viene de la BD (no hay tabla para esto)
+
+        // --- Helper genérico para llamar a la API ---
+        async function api(endpoint, opciones = {}) {
+            const res = await fetch(API + endpoint, {
+                headers: { 'Content-Type': 'application/json' },
+                ...opciones
+            });
+            const datos = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(datos.error || 'Error de servidor');
+            return datos;
+        }
+
+        window.onload = async () => {
+            try {
+                await cargarCatalogo();
+                filtrarMenu('tacos');
+            } catch (e) {
+                console.error('No se pudo conectar con la API/BD:', e);
+                alert('No se pudo conectar con el servidor/base de datos. Revisa que Apache y MySQL estén corriendo y que la carpeta api/ esté junto a este HTML.\n\n' + e.message);
+            }
+        };
+
+        // --- LOGIN ---
+        async function login() {
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
+
+            try {
+                const resp = await api('usuarios.php?action=login', {
+                    method: 'POST',
+                    body: JSON.stringify({ usuario: userInput, contrasena: passInput })
+                });
+                usuarioActivo = resp.usuario;
+                document.getElementById('lblUsuarioActivo').innerHTML = `<i class="fa-solid fa-user-tie"></i> ${usuarioActivo.nombre}`;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                resetearPOS();
+
+                // Cargar el resto de datos ahora que hay sesión
+                renderizarPersonal();
+                renderizarInventarioUI();
+            } catch (e) {
+                alert('Usuario o contraseña incorrectos.');
+            }
+        }
+
+        function logout() {
+            usuarioActivo = null;
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.panel-section').forEach(sec => sec.classList.remove('active'));
+
+            const btnAsociado = document.getElementById('tab-' + tabId.replace('Tab', ''));
+            if (btnAsociado) btnAsociado.classList.add('active');
+
+            const seccion = document.getElementById(tabId);
+            if (seccion) seccion.classList.add('active');
+
+            if (tabId === 'pendientesTab') renderizarPendientes();
+            if (tabId === 'cobradasTab') renderizarCobradas();
+            if (tabId === 'inventario') renderizarInventarioUI();
+            if (tabId === 'corte') renderizarCorteUI();
+        }
+
+        /* --- LOGICA POS (MENU Y VENTAS) --- */
+        async function cargarCatalogo() {
+            const productos = await api('productos.php'); // trae todo, con .categoria (nombre) incluido
+            CATALOGO_CACHE = {};
+            productosPorId = {};
+
+            productos.forEach(p => {
+                const item = {
+                    id: p.id,
+                    nombre: p.nombre,
+                    precio: parseFloat(p.precio),
+                    icono: p.icono || 'fa-utensils',
+                    categoria: p.categoria
+                };
+                if (!CATALOGO_CACHE[p.categoria]) CATALOGO_CACHE[p.categoria] = [];
+                CATALOGO_CACHE[p.categoria].push(item);
+                productosPorId[p.id] = item;
+            });
+        }
+
+        function filtrarMenu(categoria, event) {
+            if (event) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+
+            const container = document.getElementById('menuItemsContainer');
+            container.innerHTML = "";
+
+            const items = CATALOGO_CACHE[categoria] || [];
+            items.forEach(item => {
+                const box = document.createElement('div');
+                box.className = "menu-item-box";
+                box.onclick = () => agregarItemAOrden(item, categoria);
+                box.innerHTML = `
+                    <i class="fa-solid ${item.icono}"></i>
+                    <p>${item.nombre}</p>
+                    <span>$${item.precio.toFixed(2)}</span>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function agregarItemAOrden(item, categoria) {
+            if (ordenActual[item.id]) {
+                ordenActual[item.id].cantidad++;
+            } else {
+                ordenActual[item.id] = {
+                    id: item.id,
+                    nombre: item.nombre,
+                    precio: item.precio,
+                    cantidad: 1,
+                    categoria: categoria
+                };
+            }
+            renderizarOrdenActual();
+        }
+
+        function cambiarCantidad(itemId, delta) {
+            if (ordenActual[itemId]) {
+                ordenActual[itemId].cantidad += delta;
+                if (ordenActual[itemId].cantidad <= 0) {
+                    delete ordenActual[itemId];
+                }
+                renderizarOrdenActual();
+            }
+        }
+
+        function renderizarOrdenActual() {
+            const tbody = document.querySelector('#tablaOrden tbody');
+            tbody.innerHTML = "";
+            let total = 0;
+
+            Object.values(ordenActual).forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nombre}</td>
+                    <td>
+                        <div class="qty-controls">
+                            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', -1)">-</button>
+                            <span>${item.cantidad}</span>
+                            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', 1)">+</button>
+                        </div>
+                    </td>
+                    <td>$${item.precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('txtTotal').innerText = total.toFixed(2);
+        }
+
+        function resetearPOS() {
+            ordenActual = {};
+            notaEnEdicionId = null;
+            document.getElementById('lblNotaModificando').innerText = "(Nueva Comanda)";
+            renderizarOrdenActual();
+        }
+
+        function calcularTotalOrden(orden) {
+            return Object.values(orden).reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        }
+
+        function itemsParaAPI(orden) {
+            return Object.values(orden).map(i => ({
+                producto_id: i.id,
+                cantidad: i.cantidad,
+                precio_unitario: i.precio
+            }));
+        }
+
+        /* --- NOTAS POR COBRAR (PENDIENTES) — ahora viven en la tabla `comandas` --- */
+        async function mandarAColaPendientes() {
+            if (Object.keys(ordenActual).length === 0) {
+                alert("La orden actual está vacía.");
+                return;
+            }
+
+            try {
+                if (notaEnEdicionId !== null) {
+                    // "Editar" una pendiente = reemplazarla (se borra la anterior y se crea con los items nuevos)
+                    await api('comandas.php?id=' + notaEnEdicionId, { method: 'DELETE' });
+                }
+                await api('comandas.php', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        usuario_id: usuarioActivo.id,
+                        estado: 'Pendiente',
+                        items: itemsParaAPI(ordenActual)
+                    })
+                });
+                alert(notaEnEdicionId !== null ? "Nota actualizada." : "Nota guardada en pendientes.");
+                await actualizarContadorPendientes();
+                resetearPOS();
+            } catch (e) {
+                alert('No se pudo guardar la nota: ' + e.message);
+            }
+        }
+
+        async function actualizarContadorPendientes() {
+            const pendientes = await api('comandas.php?estado=Pendiente');
+            document.getElementById('lblCountPendientes').innerText = pendientes.length;
+        }
+
+        async function renderizarPendientes() {
+            const container = document.getElementById('containerPendientes');
+            container.innerHTML = "<p>Cargando...</p>";
+
+            const pendientes = await api('comandas.php?estado=Pendiente');
+            document.getElementById('lblCountPendientes').innerText = pendientes.length;
+
+            if (pendientes.length === 0) {
+                container.innerHTML = "<p>No hay comandas pendientes de cobro.</p>";
+                return;
+            }
+
+            container.innerHTML = "";
+            for (const nota of pendientes) {
+                const detalles = await api('comanda_detalles.php?comanda_id=' + nota.id);
+                let detalleHtml = detalles.map(d => `<div>• ${d.cantidad}x ${d.producto}</div>`).join('');
+                const hora = new Date(nota.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                const card = document.createElement('div');
+                card.className = "comanda-card";
+                card.innerHTML = `
+                    <div class="comanda-card-header">
+                        <span>Folio: #${nota.id}</span>
+                        <span>${hora}</span>
+                    </div>
+                    <div class="comanda-card-body">
+                        ${detalleHtml}
+                        <div style="font-weight:bold; margin-top:8px; text-align:right;">Total: $${parseFloat(nota.total).toFixed(2)}</div>
+                    </div>
+                    <div class="comanda-card-footer">
+                        <button class="btn-sm btn-secondary" onclick="editarNotaPendiente(${nota.id})"><i class="fa-solid fa-edit"></i> Editar</button>
+                        <button class="btn-sm" style="background-color: var(--green-success); color: white;" onclick="cobrarNotaPendiente(${nota.id})"><i class="fa-solid fa-check"></i> Cobrar</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            }
+        }
+
+        async function editarNotaPendiente(folio) {
+            const detalles = await api('comanda_detalles.php?comanda_id=' + folio);
+            ordenActual = {};
+            detalles.forEach(d => {
+                const prod = productosPorId[d.producto_id];
+                ordenActual[d.producto_id] = {
+                    id: d.producto_id,
+                    nombre: d.producto,
+                    precio: parseFloat(d.precio_unitario),
+                    cantidad: d.cantidad,
+                    categoria: prod ? prod.categoria : null
+                };
+            });
+            notaEnEdicionId = folio;
+            document.getElementById('lblNotaModificando').innerText = `(Editando Folio #${folio})`;
+            renderizarOrdenActual();
+            switchTab('pos');
+        }
+
+        async function cobrarNotaPendiente(folio) {
+            try {
+                await api('comandas.php', {
+                    method: 'PUT',
+                    body: JSON.stringify({ id: folio, estado: 'Cobrada' })
+                });
+                alert("¡Nota cobrada con éxito!");
+                renderizarPendientes();
+            } catch (e) {
+                alert('No se pudo cobrar la nota (revisa el stock de insumos): ' + e.message);
+            }
+        }
+
+        async function cobrarOrdenDirecto() {
+            if (Object.keys(ordenActual).length === 0) {
+                alert("Agrega artículos a la orden para cobrar.");
+                return;
+            }
+
+            try {
+                const creada = await api('comandas.php', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        usuario_id: usuarioActivo.id,
+                        estado: 'Pendiente',
+                        items: itemsParaAPI(ordenActual)
+                    })
+                });
+                await api('comandas.php', {
+                    method: 'PUT',
+                    body: JSON.stringify({ id: creada.id, estado: 'Cobrada' })
+                });
+                alert("¡Cobro directo procesado exitosamente!");
+                resetearPOS();
+            } catch (e) {
+                alert('No se pudo procesar el cobro (revisa el stock de insumos): ' + e.message);
+            }
+        }
+
+        /* --- CONTROL DE INVENTARIO (tabla `insumos`) --- */
+        async function renderizarInventarioUI() {
+            const tbody = document.getElementById('tbodyInventario');
+            tbody.innerHTML = "";
+
+            const insumos = await api('insumos.php');
+
+            insumos.forEach(ins => {
+                const stock = parseFloat(ins.stock_actual);
+                const critico = parseFloat(ins.limite_critico);
+                const advertencia = parseFloat(ins.limite_advertencia);
+
+                let badgeClass = "badge-success";
+                let badgeText = "Saludable";
+                if (stock <= critico) {
+                    badgeClass = "badge-danger";
+                    badgeText = "Crítico (Abastecer)";
+                } else if (stock <= advertencia) {
+                    badgeClass = "badge-warning";
+                    badgeText = "Bajo";
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${ins.nombre}</strong></td>
+                    <td>${stock.toFixed(2)}</td>
+                    <td>${ins.unidad_medida}</td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            // Refrescar el <select> de abastecimiento con los ids reales de la BD
+            const select = document.getElementById('restockInsumo');
+            select.innerHTML = insumos.map(ins => `<option value="${ins.id}">${ins.nombre}</option>`).join('');
+        }
+
+        async function agregarStockProveedor(event) {
+            event.preventDefault();
+            const insId = document.getElementById('restockInsumo').value;
+            const cant = parseFloat(document.getElementById('restockCantidad').value);
+
+            if (!insId || !(cant > 0)) return;
+
+            try {
+                await api('insumos.php', {
+                    method: 'PUT',
+                    body: JSON.stringify({ id: insId, delta: cant })
+                });
+                alert(`Stock actualizado correctamente: +${cant}`);
+                document.getElementById('formRestock').reset();
+                renderizarInventarioUI();
+            } catch (e) {
+                alert('No se pudo actualizar el stock: ' + e.message);
+            }
+        }
+
+        /* --- CONTROL DE PERSONAL (tabla `usuarios`) --- */
+        async function renderizarPersonal() {
+            const tbody = document.getElementById('tbodyPersonal');
+            tbody.innerHTML = "";
+
+            personalCache = await api('usuarios.php');
+
+            personalCache.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${emp.nombre}</td>
+                    <td>${emp.puesto}</td>
+                    <td><code>${emp.usuario}</code></td>
+                    <td>••••••</td>
+                    <td>
+                        <button class="btn-sm-edit" onclick="cargarEmpleadoEdicion(${emp.id})"><i class="fa-solid fa-edit"></i></button>
+                        <button class="btn-sm-delete" onclick="eliminarEmpleado(${emp.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function guardarEmpleado(event) {
+            event.preventDefault();
+            const idVal = document.getElementById('empId').value;
+            const nombre = document.getElementById('empNombre').value.trim();
+            const puesto = document.getElementById('empPuesto').value;
+            const user = document.getElementById('empUser').value.trim();
+            const pass = document.getElementById('empPass').value.trim();
+
+            try {
+                if (idVal !== "") {
+                    const body = { id: idVal, nombre, puesto, usuario: user };
+                    if (pass !== "") body.contrasena = pass; // solo se cambia si escribieron algo nuevo
+                    await api('usuarios.php', { method: 'PUT', body: JSON.stringify(body) });
+                    alert("Empleado actualizado con éxito.");
+                } else {
+                    if (pass === "") { alert("La contraseña es obligatoria para un usuario nuevo."); return; }
+                    await api('usuarios.php', {
+                        method: 'POST',
+                        body: JSON.stringify({ nombre, puesto, usuario: user, contrasena: pass })
+                    });
+                    alert("Nuevo empleado agregado.");
+                }
+                limpiarFormPersonal();
+                renderizarPersonal();
+            } catch (e) {
+                alert('No se pudo guardar el empleado: ' + e.message);
+            }
+        }
+
+        function cargarEmpleadoEdicion(id) {
+            const emp = personalCache.find(e => e.id === id);
+            if (emp) {
+                document.getElementById('empId').value = emp.id;
+                document.getElementById('empNombre').value = emp.nombre;
+                document.getElementById('empPuesto').value = emp.puesto;
+                document.getElementById('empUser').value = emp.usuario;
+
+                const campoPass = document.getElementById('empPass');
+                campoPass.value = "";
+                campoPass.required = false;
+                campoPass.placeholder = "Dejar en blanco para no cambiarla";
+
+                document.getElementById('lblFormPersonal').innerText = "Editar Usuario / Cuenta";
+                document.getElementById('btnCancelarEmp').style.display = "block";
+            }
+        }
+
+        function limpiarFormPersonal() {
+            document.getElementById('formEmpleado').reset();
+            document.getElementById('empId').value = "";
+            const campoPass = document.getElementById('empPass');
+            campoPass.required = true;
+            campoPass.placeholder = "123";
+            document.getElementById('lblFormPersonal').innerText = "Agregar Nuevo Usuario / Cuenta";
+            document.getElementById('btnCancelarEmp').style.display = "none";
+        }
+
+        async function eliminarEmpleado(id) {
+            const emp = personalCache.find(e => e.id === id);
+            if (emp && usuarioActivo && emp.usuario === usuarioActivo.usuario) {
+                alert("No puedes eliminar la cuenta con la que iniciaste sesión.");
+                return;
+            }
+            if (confirm("¿Seguro que deseas dar de baja a este usuario?")) {
+                try {
+                    await api('usuarios.php?id=' + id, { method: 'DELETE' });
+                    renderizarPersonal();
+                } catch (e) {
+                    alert('No se pudo eliminar: ' + e.message);
+                }
+            }
+        }
+
+        /* --- HISTORIAL COBRADAS (tabla `comandas` con estado = Cobrada) --- */
+        let cobradasCache = [];
+
+        async function renderizarCobradas() {
+            const tbody = document.getElementById('tbodyCobradas');
+            tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Cargando...</td></tr>";
+
+            const cobradas = await api('comandas.php?estado=Cobrada');
+            cobradasCache = [];
+
+            if (cobradas.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No se han cobrado notas en este turno.</td></tr>";
+                return;
+            }
+
+            tbody.innerHTML = "";
+            for (const nota of cobradas) {
+                const detalles = await api('comanda_detalles.php?comanda_id=' + nota.id);
+                const detalleTexto = detalles.map(d => `${d.cantidad}x ${d.producto}`).join(", ");
+                const hora = new Date(nota.fecha_pago || nota.fecha_creacion).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+                cobradasCache.push({ id: nota.id, cajero: nota.usuario, hora, total: parseFloat(nota.total), detalle: detalleTexto });
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>#${nota.id}</strong></td>
+                    <td>${nota.usuario}</td>
+                    <td>${hora}</td>
+                    <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${detalleTexto}">${detalleTexto}</td>
+                    <td><strong>$${parseFloat(nota.total).toFixed(2)}</strong></td>
+                    <td>
+                        <button class="btn-sm btn-secondary" onclick="reimprimirTicketMock(${nota.id})"><i class="fa-solid fa-print"></i> Ticket</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            }
+        }
+
+        function reimprimirTicketMock(folio) {
+            const nota = cobradasCache.find(n => n.id === folio);
+            if (nota) {
+                alert(`----- TICKET DE CONSUMO (RE-IMPRESIÓN) -----\nFolio: #${nota.id}\nHora: ${nota.hora}\nAtendió: ${nota.cajero}\n------------------------------\nDetalles:\n${nota.detalle.replace(/, /g, '\n')}\n------------------------------\nTotal Pagado: $${nota.total.toFixed(2)}\n¡Gracias por su visita!`);
+            }
+        }
+
+        /* --- CORTE DE CAJA (se calcula en vivo desde `comandas` + se guarda en `cortes_caja`) --- */
+        async function renderizarCorteUI() {
+            const cobradas = await api('comandas.php?estado=Cobrada');
+            const hoy = new Date().toISOString().slice(0, 10);
+            const cobradasHoy = cobradas.filter(n => (n.fecha_pago || '').slice(0, 10) === hoy);
+
+            const totalVentaDia = cobradasHoy.reduce((s, n) => s + parseFloat(n.total), 0);
+            const totalOrdenesDia = cobradasHoy.length;
+
+            document.getElementById('txtVentaHistorica').innerText = totalVentaDia.toFixed(2);
+            document.getElementById('txtOrdenesCount').innerText = totalOrdenesDia;
+            document.getElementById('txtEfectivoCaja').innerText = (fondoFijoCaja + totalVentaDia).toFixed(2);
+
+            const metricas = {
+                tacos: { cant: 0, dinero: 0 },
+                tortas: { cant: 0, dinero: 0 },
+                quesadillas: { cant: 0, dinero: 0 },
+                bebidas: { cant: 0, dinero: 0 }
+            };
+
+            for (const nota of cobradasHoy) {
+                const detalles = await api('comanda_detalles.php?comanda_id=' + nota.id);
+                detalles.forEach(d => {
+                    const prod = productosPorId[d.producto_id];
+                    const cat = prod ? prod.categoria : null;
+                    if (cat && metricas[cat]) {
+                        metricas[cat].cant += d.cantidad;
+                        metricas[cat].dinero += d.cantidad * parseFloat(d.precio_unitario);
+                    }
+                });
+            }
+
+            document.getElementById('corte-cant-tacos').innerText = metricas.tacos.cant;
+            document.getElementById('corte-dinero-tacos').innerText = metricas.tacos.dinero.toFixed(2);
+            document.getElementById('corte-cant-tortas').innerText = metricas.tortas.cant;
+            document.getElementById('corte-dinero-tortas').innerText = metricas.tortas.dinero.toFixed(2);
+            document.getElementById('corte-cant-quesadillas').innerText = metricas.quesadillas.cant;
+            document.getElementById('corte-dinero-quesadillas').innerText = metricas.quesadillas.dinero.toFixed(2);
+            document.getElementById('corte-cant-bebidas').innerText = metricas.bebidas.cant;
+            document.getElementById('corte-dinero-bebidas').innerText = metricas.bebidas.dinero.toFixed(2);
+
+            // Guardamos los totales del momento para poder registrar el cierre si el usuario lo confirma
+            window._corteActual = { totalVentaDia, totalOrdenesDia };
+        }
+
+        async function ejecutarCierreCaja() {
+            const { totalVentaDia, totalOrdenesDia } = window._corteActual || { totalVentaDia: 0, totalOrdenesDia: 0 };
+
+            if (confirm("¿Deseas realizar el cierre definitivo del turno actual? Se registrará este corte en el historial.")) {
+                try {
+                    const ingresoReal = fondoFijoCaja + totalVentaDia;
+                    await api('cortes_caja.php', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            usuario_id: usuarioActivo.id,
+                            fondo_inicial: fondoFijoCaja,
+                            ingreso_esperado: ingresoReal,
+                            ingreso_real: ingresoReal
+                        })
+                    });
+                    alert(`******* CIERRE DE CAJA EXITOSO *******\nTurno cerrado por: ${usuarioActivo.nombre}\nÓrdenes Cobradas: ${totalOrdenesDia}\nVentas Netas: $${totalVentaDia.toFixed(2)}\nEfectivo esperado en caja física: $${ingresoReal.toFixed(2)}`);
+                    resetearPOS();
+                    switchTab('pos');
+                } catch (e) {
+                    alert('No se pudo registrar el corte: ' + e.message);
+                }
+            }
+        }
+    </script>
+</body>
+</html>
