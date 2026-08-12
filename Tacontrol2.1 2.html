@@ -1,0 +1,1096 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TaControl - Punto de Venta Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --orange-main: #e27814fd;
+            --orange-dark: #232594; 
+            --bg-light: #F4F5F7;
+            --white: #FFFFFF;
+            --text-dark: #333333;
+            --blue-icon: #4A90E2;
+            --gray-border: #CCCCCC;
+            --green-success: #2daf28;
+            --red-danger: #dc3545;
+            --purple-accent: #A3649F;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            padding: 0;
+            background-color: var(--bg-light);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        /* --- PANTALLA DE LOGIN --- */
+        .login-container {
+            display: flex;
+            width: 850px;
+            height: 500px;
+            background: var(--white);
+            border-radius: 4px;
+            box-shadow: 0 10px 30px rgba(175, 84, 84, 0.15);
+            overflow: hidden;
+        }
+
+        .login-left {
+            background-color: var(--orange-main);
+            width: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: var(--white);
+        }
+
+        .login-left h1 {
+            font-size: 2rem;
+            font-style: italic;
+            font-weight: 800;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+            text-transform: uppercase;
+        }
+
+        .pos-icon-circle {
+            background-color: var(--purple-accent);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .pos-icon-circle i { font-size: 4.5rem; color: var(--white); }
+        .login-left h2 { font-size: 1.5rem; font-style: italic; font-weight: 600; }
+
+        .login-right {
+            width: 50%;
+            background-color: #ffffff;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 40px;
+        }
+
+        .user-avatar-circle {
+            width: 130px;
+            height: 130px;
+            background-color: #71a3e0;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .user-avatar-circle i { font-size: 7.5rem; color: var(--white); margin-bottom: -10px; }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            width: 80%;
+            margin-bottom: 20px;
+            background: var(--white);
+            border: 1px solid var(--gray-border);
+            border-radius: 2px;
+            padding: 4px 10px;
+        }
+
+        .input-group input, .form-control-inline input, .form-control-inline select {
+            border: none;
+            outline: none;
+            width: 100%;
+            padding: 6px 10px;
+            font-size: 1rem;
+            background: transparent;
+        }
+
+        .btn-login {
+            background-color: var(--orange-main);
+            color: var(--white);
+            border: none;
+            padding: 10px 35px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border-radius: 2px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: background 0.2s;
+        }
+        .btn-login:hover { background-color: var(--orange-dark); }
+
+        /* --- PANEL PRINCIPAL --- */
+        .main-app {
+            display: none;
+            width: 100vw;
+            height: 100vh;
+            flex-direction: column;
+        }
+
+        header {
+            background-color: var(--orange-main);
+            color: var(--white);
+            padding: 15px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 10;
+        }
+
+        header h1 { font-style: italic; font-size: 1.6rem; }
+        .nav-tabs { display: flex; gap: 15px; }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            padding: 8px 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .tab-btn:hover, .tab-btn.active { background-color: rgba(255, 255, 255, 0.2); }
+        
+        .header-right { display: flex; align-items: center; gap: 15px; }
+        .user-info { font-weight: bold; background: rgba(0,0,0,0.1); padding: 5px 10px; border-radius: 4px; font-size: 0.9rem;}
+        .logout-btn { background: transparent; border: 1px solid var(--white); color: var(--white); padding: 5px 12px; border-radius: 4px; cursor: pointer; }
+
+        .app-content { flex: 1; padding: 20px 30px; overflow-y: auto; background-color: var(--bg-light); }
+        .panel-section { display: none; height: 100%; }
+        .panel-section.active { display: block; }
+
+        .grid-pos, .grid-personal, .grid-corte, .grid-inventario {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 20px;
+            align-items: start;
+        }
+        
+        .grid-corte { grid-template-columns: 2fr 1fr; }
+
+        .card {
+            background: var(--white);
+            padding: 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            margin-bottom: 20px;
+        }
+
+        .card h3 {
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--orange-main);
+            padding-bottom: 5px;
+            color: var(--orange-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .menu-categories { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid #DDD; padding-bottom: 10px; }
+        .cat-btn { background-color: #E4E6EB; border: none; padding: 10px 16px; font-weight: bold; border-radius: 20px; cursor: pointer; }
+        .cat-btn.active, .cat-btn:hover { background-color: var(--orange-main); color: var(--white); }
+
+        .menu-grid-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; min-height: 180px; }
+        .menu-item-box { background: var(--bg-light); border: 1px solid #DDD; padding: 12px; text-align: center; border-radius: 6px; cursor: pointer; transition: transform 0.2s, border-color 0.2s; }
+        .menu-item-box:hover { transform: scale(1.02); border-color: var(--orange-main); }
+        .menu-item-box i { font-size: 1.8rem; color: var(--orange-main); margin-bottom: 6px; }
+        .menu-item-box p { font-weight: bold; font-size: 0.9rem; }
+        .menu-item-box span { color: #666; font-size: 0.85rem; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #DDD; }
+        th { background-color: #F0F0F0; color: #555; font-size: 0.9rem; }
+        td { font-size: 0.9rem; }
+
+        .qty-controls { display: flex; align-items: center; gap: 5px; }
+        .btn-qty { background: #E4E6EB; border: none; width: 24px; height: 24px; font-weight: bold; border-radius: 4px; cursor: pointer; }
+
+        .btn-action { background-color: var(--orange-main); color: white; border: none; padding: 10px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-action:hover { background-color: var(--orange-dark); }
+        .btn-secondary { background-color: #6c757d; color: white; }
+        .btn-secondary:hover { background-color: #5a6268; }
+        
+        /* Botones de acción mejorados */
+        .btn-sm-edit { background-color: var(--blue-icon); color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-sm-edit:hover { background-color: #357ABD; }
+        .btn-sm-delete { background-color: var(--red-danger); color: white; padding: 6px 12px; border-radius: 4px; font-weight: bold; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; }
+        .btn-sm-delete:hover { background-color: #b21f2d; }
+
+        .total-box { font-size: 1.4rem; font-weight: bold; text-align: right; margin: 15px 0; color: #222; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+        .badge-success { background-color: #D4EDDA; color: #155724; }
+        .badge-warning { background-color: #FFF3CD; color: #856404; }
+        .badge-danger { background-color: #F8D7DA; color: #721c24; }
+
+        .comandas-list-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .comanda-card { border: 1px solid #DDD; background: #FFF; border-radius: 6px; padding: 15px; }
+        .comanda-card-header { display: flex; justify-content: space-between; font-weight: bold; border-bottom: 1px dashed #DDD; padding-bottom: 8px; margin-bottom: 8px; color: var(--orange-dark); }
+        .comanda-card-body { font-size: 0.85rem; color: #555; margin-bottom: 12px; max-height: 100px; overflow-y: auto; }
+        .comanda-card-footer { display: flex; justify-content: flex-end; gap: 8px; }
+        .btn-sm { padding: 5px 10px; font-size: 0.8rem; border-radius: 3px; border: none; cursor: pointer; font-weight: bold; }
+
+        /* Formulario Estilos */
+        .form-control-inline { margin-bottom: 15px; }
+        .form-control-inline label { display: block; font-weight: bold; font-size: 0.85rem; margin-bottom: 5px; color: #555; }
+        .form-control-inline div.input-wrap { background: var(--white); border: 1px solid var(--gray-border); border-radius: 4px; padding: 2px; }
+        
+        .btn-group-actions { display: flex; gap: 8px; }
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA DE LOGIN -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-left">
+            <h1>Punto de Venta</h1>
+            <div class="pos-icon-circle"><i class="fa-solid fa-cash-register"></i></div>
+            <h2>TaControl</h2>
+        </div>
+        <div class="login-right">
+            <div class="user-avatar-circle"><i class="fa-solid fa-user"></i></div>
+            <div class="input-group">
+                <i class="fa-solid fa-user" style="color: #5494F3; margin-left: 5px;"></i>
+                <input type="text" id="loginUser" placeholder="Usuario" value="AdminTaquero">
+            </div>
+            <div class="input-group">
+                <i class="fa-solid fa-lock" style="color: #D4A316; margin-left: 5px;"></i>
+                <input type="password" id="loginPass" placeholder="Contraseña" value="123">
+            </div>
+            <button class="btn-login" onclick="login()">Iniciar Sesión</button>
+        </div>
+    </div>
+
+    <!-- PANTALLA GENERAL DE LA APP -->
+    <div class="main-app" id="mainApp">
+        <header>
+            <h1>TaControl 🌮</h1>
+            <nav class="nav-tabs">
+                <button class="tab-btn active" id="tab-pos" onclick="switchTab('pos')"><i class="fa-solid fa-calculator"></i> Nueva Venta</button>
+                <button class="tab-btn" id="tab-pendientes" onclick="switchTab('pendientesTab')"><i class="fa-solid fa-clock-rotate-left"></i> Notas por Cobrar (<span id="lblCountPendientes">0</span>)</button>
+                <button class="tab-btn" id="tab-cobradas" onclick="switchTab('cobradasTab')"><i class="fa-solid fa-receipt"></i> Historial Cobradas</button>
+                <button class="tab-btn" id="tab-inventario" onclick="switchTab('inventario')"><i class="fa-solid fa-boxes-stacked"></i> Inventario</button>
+                <button class="tab-btn" id="tab-usuarios" onclick="switchTab('usuarios')"><i class="fa-solid fa-users"></i> Personal y Accesos</button>
+                <button class="tab-btn" id="tab-corte" onclick="switchTab('corte')"><i class="fa-solid fa-chart-line"></i> Corte de Caja</button>
+            </nav>
+            <div class="header-right">
+                <span class="user-info" id="lblUsuarioActivo"><i class="fa-solid fa-user-tie"></i> Admin</span>
+                <button class="logout-btn" onclick="logout()"><i class="fa-solid fa-right-from-bracket"></i> Salir</button>
+            </div>
+        </header>
+
+        <div class="app-content">
+            
+            <!-- SECCIÓN 1: NUEVA VENTA (POS) -->
+            <section id="pos" class="panel-section active">
+                <div class="grid-pos">
+                    <div class="card">
+                        <h3>Menú Digital Dinámico</h3>
+                        <div class="menu-categories">
+                            <button class="cat-btn active" onclick="filtrarMenu('tacos', event)">🌮 Tacos</button>
+                            <button class="cat-btn" onclick="filtrarMenu('tortas', event)">🥪 Tortas</button>
+                            <button class="cat-btn" onclick="filtrarMenu('quesadillas', event)">🧀 Quesadillas</button>
+                            <button class="cat-btn" onclick="filtrarMenu('bebidas', event)">🥤 Bebidas</button>
+                        </div>
+                        <div class="menu-grid-items" id="menuItemsContainer"></div>
+                    </div>
+
+                    <div class="card">
+                        <h3>Orden Actual <span id="lblNotaModificando" style="font-size:0.9rem; color:#666; font-weight: bold;">(Nueva Comanda)</span></h3>
+                        <table id="tablaOrden">
+                            <thead>
+                                <tr><th>Item / Carne</th><th>Cant.</th><th>Precio</th><th>Total</th></tr>
+                            </thead>
+                            <tbody></tbody>
+                        </table>
+                        <div class="total-box">Total: $<span id="txtTotal">0.00</span></div>
+                        <div style="display:flex; gap:10px; flex-direction:column;">
+                            <button class="btn-action btn-secondary" style="width: 100%;" onclick="mandarAColaPendientes()">
+                                <i class="fa-solid fa-layer-group"></i> Mandar a Notas por Cobrar / Guardar
+                            </button>
+                            <button class="btn-action" style="width: 100%; padding: 12px; background-color: var(--green-success);" onclick="cobrarOrdenDirecto()">
+                                <i class="fa-solid fa-cash-register"></i> Cobrar y Finalizar Ahora
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 2: NOTAS PENDIENTES -->
+            <section id="pendientesTab" class="panel-section">
+                <div class="card">
+                    <h3>Fila de Notas Pendientes de Pago</h3>
+                    <div class="comandas-list-grid" id="containerPendientes"></div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 3: COMANDAS COBRADAS -->
+            <section id="cobradasTab" class="panel-section">
+                <div class="card">
+                    <h3>Historial de Comandas Cobradas</h3>
+                    <table>
+                        <thead>
+                            <tr><th>Folio Nota</th><th>Cajero</th><th>Hora Cobro</th><th>Detalle de Consumo</th><th>Total Pagado</th><th>Acciones</th></tr>
+                        </thead>
+                        <tbody id="tbodyCobradas"></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 4: INVENTARIO CON ACTUALIZACIÓN Y ABASTECIMIENTO -->
+            <section id="inventario" class="panel-section">
+                <div class="grid-inventario">
+                    <div class="card">
+                        <h3>Control de Insumos (Mermas en Tiempo Real)</h3>
+                        <table>
+                            <thead><tr><th>Insumo</th><th>Stock Actual</th><th>Unidad</th><th>Estado</th></tr></thead>
+                            <tbody id="tbodyInventario"></tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="card">
+                        <h3><i class="fa-solid fa-truck-ramp-box"></i> Abastecer / Entrada de Almacén</h3>
+                        <form id="formRestock" onsubmit="agregarStockProveedor(event)">
+                            <div class="form-control-inline">
+                                <label>Selecciona el Insumo:</label>
+                                <div class="input-wrap">
+                                    <select id="restockInsumo">
+                                        <option value="queso">Queso</option>
+                                        <option value="bistec">Bistec</option>
+                                        <option value="arrachera">Arrachera</option>
+                                        <option value="pastor">Pastor</option>
+                                        <option value="costilla">Costilla</option>
+                                        <option value="cabeza">Cabeza</option>
+                                        <option value="buche">Buche</option>
+                                        <option value="tortillas">Tortillas (Maíz/Harina)</option>
+                                        <option value="bebidas">Bebidas / Refrescos</option>
+                                        <option value="bolillo">Bolillo</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-control-inline">
+                                <label>Cantidad a Ingresar:</label>
+                                <div class="input-wrap"><input type="number" step="any" id="restockCantidad" required placeholder="Ej. 10 o 150"></div>
+                            </div>
+                            <button type="submit" class="btn-action" style="width:100%; background-color: var(--blue-icon);"><i class="fa-solid fa-plus"></i> Aplicar Entrada de Producto</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 5: PERSONAL Y USUARIOS ACCESOS -->
+            <section id="usuarios" class="panel-section">
+                <div class="grid-personal">
+                    <div class="card">
+                        <h3>Plantilla de Empleados y Usuarios de Sistema</h3>
+                        <table>
+                            <thead>
+                                <tr><th>Nombre</th><th>Puesto / Rol</th><th>Usuario</th><th>Contraseña</th><th>Acciones</th></tr>
+                            </thead>
+                            <tbody id="tbodyPersonal"></tbody>
+                        </table>
+                    </div>
+                    <div class="card">
+                        <h3 id="lblFormPersonal">Agregar Nuevo Usuario / Cuenta</h3>
+                        <form id="formEmpleado" onsubmit="guardarEmpleado(event)">
+                            <input type="hidden" id="empId" value="">
+                            <div class="form-control-inline">
+                                <label>Nombre Completo:</label>
+                                <div class="input-wrap"><input type="text" id="empNombre" required placeholder="Ej. Pedro Páramo"></div>
+                            </div>
+                            <div class="form-control-inline">
+                                <label>Puesto Desempeñado:</label>
+                                <div class="input-wrap">
+                                    <select id="empPuesto">
+                                        <option value="Administrador">Administrador</option>
+                                        <option value="Taquero Principal">Taquero Principal</option>
+                                        <option value="Cajera / Administración">Cajera / Administración</option>
+                                        <option value="Mesero">Mesero</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div style="background: #F0F4F8; padding: 10px; border-radius: 4px; margin-bottom: 15px; border-left: 4px solid var(--blue-icon);">
+                                <h4 style="font-size: 0.85rem; margin-bottom: 8px; color: var(--blue-icon);"><i class="fa-solid fa-key"></i> Credenciales de Acceso</h4>
+                                <div class="form-control-inline">
+                                    <label>Usuario Login:</label>
+                                    <div class="input-wrap"><input type="text" id="empUser" required placeholder="ej. pedro123"></div>
+                                </div>
+                                <div class="form-control-inline">
+                                    <label>Contraseña:</label>
+                                    <div class="input-wrap"><input type="text" id="empPass" required placeholder="123"></div>
+                                </div>
+                            </div>
+                            <button type="submit" class="btn-action" style="width:100%">Guardar Personal y Usuario</button>
+                            <button type="button" id="btnCancelarEmp" class="btn-action btn-secondary" style="width:100%; margin-top:8px; display:none;" onclick="limpiarFormPersonal()">Cancelar Edición</button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECCIÓN 6: CORTE DE CAJA -->
+            <section id="corte" class="panel-section">
+                <div class="grid-corte">
+                    <div>
+                        <div class="card">
+                            <h3>Resumen General de Auditoría</h3>
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 10px;">
+                                <div class="card" style="background:#E2F0D9; border: 1px solid #A8D08D; text-align:center; margin-bottom:0;">
+                                    <h4>Venta Total Bruta</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #385723; margin-top:10px;">$<span id="txtVentaHistorica">0.00</span></p>
+                                </div>
+                                <div class="card" style="background:#FFF2CC; border: 1px solid #FFE699; text-align:center; margin-bottom:0;">
+                                    <h4>Órdenes Cobradas</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #7F6000; margin-top:10px;"><span id="txtOrdenesCount">0</span></p>
+                                </div>
+                                <div class="card" style="background:#DEEBF7; border: 1px solid #B4C6E7; text-align:center; margin-bottom:0;">
+                                    <h4>Fondo Inic. Caja</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #1F4E79; margin-top:10px;">$500.00</p>
+                                </div>
+                                <div class="card" style="background:#FCE4D6; border: 1px solid #F8CBAD; text-align:center; margin-bottom:0;">
+                                    <h4>Efectivo en Caja Esperado</h4>
+                                    <p style="font-size: 1.8rem; font-weight: bold; color: #C65911; margin-top:10px;">$<span id="txtEfectivoCaja">500.00</span></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <h3>Ventas Detalladas por Categoría</h3>
+                            <table>
+                                <thead>
+                                    <tr><th>Categoría</th><th>Cantidad Artículos</th><th>Total Dinero ($)</th></tr>
+                                </thead>
+                                <tbody>
+                                    <tr><td>Tacos</td><td id="corte-cant-tacos">0</td><td>$<span id="corte-dinero-tacos">0.00</span></td></tr>
+                                    <tr><td>Tortas</td><td id="corte-cant-tortas">0</td><td>$<span id="corte-dinero-tortas">0.00</span></td></tr>
+                                    <tr><td>Quesadillas</td><td id="corte-cant-quesadillas">0</td><td>$<span id="corte-dinero-quesadillas">0.00</span></td></tr>
+                                    <tr><td>Bebidas</td><td id="corte-cant-bebidas">0</td><td>$<span id="corte-dinero-bebidas">0.00</span></td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; flex-direction: column; justify-content: space-between; height: 100%;">
+                        <div>
+                            <h3>Estatus de Caja</h3>
+                            <div style="text-align: center; padding: 20px 0;">
+                                <i class="fa-solid fa-lock-open" style="font-size: 4rem; color: var(--green-success); margin-bottom: 10px;"></i>
+                                <h2 style="color: var(--green-success)">CAJA ABIERTA</h2>
+                                <p style="color: #666; font-size: 0.9rem; margin-top: 5px;">Turno Activo</p>
+                            </div>
+                            <hr style="border: 0; border-top: 1px solid #DDD; margin: 15px 0;">
+                            <p style="font-size: 0.85rem; color: #555; line-height: 1.4;">El cierre de caja reiniciará los valores acumulados del día y generará una alerta de arqueo total.</p>
+                        </div>
+                        <button class="btn-action btn-danger" style="width: 100%; padding: 15px; margin-top: 20px; font-size: 1rem;" onclick="ejecutarCierreCaja()">
+                            <i class="fa-solid fa-vault"></i> Realizar Cierre de Caja
+                        </button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        const CARNES = ["Pastor", "Costilla", "Cabeza", "Buche", "Suadero", "Bistec", "Arrachera"];
+        const AGUAS_REFRESCOS = ["Agua Jamaica", "Agua Horchata", "Coca-Cola", "Sidral Mundet"];
+
+        const CATALOGO = {
+            tacos: CARNES.map(carne => ({ id: `taco_${carne.toLowerCase()}`, nombre: `Taco de ${carne}`, precio: carne === "Arrachera" ? 20 : 17, icono: "fa-fire-burner" })),
+            tortas: [
+                ...CARNES.map(carne => ({ id: `torta_sin_${carne.toLowerCase()}`, nombre: `Torta s/Queso (${carne})`, precio: 45, icono: "fa-bread-slice" })),
+                ...CARNES.map(carne => ({ id: `torta_con_${carne.toLowerCase()}`, nombre: `Torta c/Queso (${carne})`, precio: 55, icono: "fa-cheese" }))
+            ],
+            quesadillas: CARNES.map(carne => ({ id: `quesadilla_${carne.toLowerCase()}`, nombre: `Quesadilla de ${carne}`, precio: 35, icono: "fa-folder" })),
+            bebidas: AGUAS_REFRESCOS.map(b => ({ id: b.replace(" ", "_").toLowerCase(), nombre: b, precio: 20, icono: "fa-bottle-water" }))
+        };
+
+        // Inventario corregido (se removió nodo repetido de quesos y unificaron keys a minúsculas)
+        let inventarioInsumos = {
+            queso: { nombre: "Queso", stock: 20.0, unidad: "Kg", limites: { critico: 5, advertencia: 10 } },
+            bistec: { nombre: "Bistec", stock: 15.0, unidad: "Kg", limites: { critico: 3, advertencia: 7 } },
+            arrachera: { nombre: "Arrachera", stock: 10.0, unidad: "Kg", limites: { critico: 2, advertencia: 5 } },
+            pastor: { nombre: "Pastor", stock: 12.0, unidad: "Kg", limites: { critico: 3, advertencia: 6 } },
+            costilla: { nombre: "Costilla", stock: 8.0, unidad: "Kg", limites: { critico: 2, advertencia: 4 } },
+            cabeza: { nombre: "Cabeza", stock: 6.0, unidad: "Kg", limites: { critico: 1, advertencia: 3 } },
+            buche: { nombre: "Buche", stock: 5.0, unidad: "Kg", limites: { critico: 1, advertencia: 2 } },
+            suadero: { nombre: "Suadero", stock: 8.0, unidad: "Kg", limites: { critico: 2, advertencia: 4 } },
+            tortillas: { nombre: "Tortillas (Maíz/Harina)", stock: 300, unidad: "Pzas", limites: { critico: 150, advertencia: 250 } },
+            bebidas: { nombre: "Bebidas / Refrescos", stock: 48, unidad: "Pzas", limites: { critico: 12, advertencia: 24 } },
+            bolillo: { nombre: "Bolillos", stock: 120, unidad: "Pzas", limites: { critico: 20, advertencia: 50 } },
+            aguachiles: {nombre: "Aguachiles", stock: 10, unidad: "Pzas", limites: { critico: 2, advertencia: 5 } }
+        };
+
+        const RECETAS = {
+            tacos: { carnes: 0.08, tortillas: 2, bebidas: 0 },
+            tortas: { carnes: 0.18, bolillo: 1, tortillas: 0, bebidas: 0 },
+            quesadillas: { carnes: 0.12, tortillas: 1, bolillo: 0, bebidas: 0 },
+            bebidas: { carnes: 0, tortillas: 0, bebidas: 1, bolillo: 0 }
+        };
+
+        let usuarioLogueado = "AdminTaquero";
+        let ordenActual = {};
+        let notaEnEdicionId = null; 
+        let colaPendientes = [];    
+        let historicoCobradas = []; 
+        
+        let personal = [
+            { id: 1, nombre: "Luis Cuevas", puesto: "Administrador", user: "AdminTaquero", pass: "123" },
+            { id: 2, nombre: "Memo", puesto: "Cajero / Administración", user: "memin", pass: "memin71"},
+            { id: 3, nombre: "David", puesto: "Taquero Principal", user: "david", pass: "negratomasa" }
+        ];
+
+        let folioContador = 100;
+        let totalVentaDia = 0;
+        let totalOrdenesDia = 0;
+        let fondoFijoCaja = 500.00;
+
+        let metricasCorte = {
+            tacos: { cant: 0, dinero: 0 },
+            tortas: { cant: 0, dinero: 0 },
+            quesadillas: { cant: 0, dinero: 0 },
+            bebidas: { cant: 0, dinero: 0 }
+        };
+
+        window.onload = () => {
+            filtrarMenu('tacos');
+            renderizarPersonal();
+            renderizarInventarioUI();
+        };
+
+        function login() {
+            const userInput = document.getElementById('loginUser').value.trim();
+            const passInput = document.getElementById('loginPass').value.trim();
+            const cuenta = personal.find(emp => emp.user === userInput && emp.pass === passInput);
+
+            if (cuenta) {
+                usuarioLogueado = cuenta.user;
+                document.getElementById('lblUsuarioActivo').innerHTML = `<i class="fa-solid fa-user-tie"></i> ${cuenta.nombre}`;
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('mainApp').style.display = 'flex';
+                resetearPOS();
+            } else {
+                alert("Usuario o contraseña incorrectos.");
+            }
+        }
+
+        function logout() {
+            document.getElementById('mainApp').style.display = 'none';
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.panel-section').forEach(sec => sec.classList.remove('active'));
+            
+            const btnAsociado = document.getElementById('tab-' + tabId.replace('Tab', ''));
+            if(btnAsociado) btnAsociado.classList.add('active');
+
+            const seccion = document.getElementById(tabId);
+            if(seccion) seccion.classList.add('active');
+
+            if(tabId === 'pendientesTab') renderizarPendientes();
+            if(tabId === 'cobradasTab') renderizarCobradas();
+            if(tabId === 'inventario') renderizarInventarioUI();
+            if(tabId === 'corte') renderizarCorteUI();
+        }
+
+        /* --- LOGICA POS (MENU Y VENTAS) --- */
+        function filtrarMenu(categoria, event) {
+            if(event) {
+                document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+                event.target.classList.add('active');
+            }
+            
+            const container = document.getElementById('menuItemsContainer');
+            container.innerHTML = "";
+            
+            const items = CATALOGO[categoria] || [];
+            items.forEach(item => {
+                const box = document.createElement('div');
+                box.className = "menu-item-box";
+                box.onclick = () => agregarItemAOrden(item, categoria);
+                box.innerHTML = `
+                    <i class="fa-solid ${item.icono}"></i>
+                    <p>${item.nombre}</p>
+                    <span>$${item.precio.toFixed(2)}</span>
+                `;
+                container.appendChild(box);
+            });
+        }
+
+        function agregarItemAOrden(item, categoria) {
+            if(ordenActual[item.id]) {
+                ordenActual[item.id].cantidad++;
+            } else {
+                ordenActual[item.id] = {
+                    id: item.id,
+                    nombre: item.nombre,
+                    precio: item.precio,
+                    cantidad: 1,
+                    categoria: categoria
+                };
+            }
+            renderizarOrdenActual();
+        }
+
+        function cambiarCantidad(itemId, delta) {
+            if(ordenActual[itemId]) {
+                ordenActual[itemId].cantidad += delta;
+                if(ordenActual[itemId].cantidad <= 0) {
+                    delete ordenActual[itemId];
+                }
+                renderizarOrdenActual();
+            }
+        }
+
+        function renderizarOrdenActual() {
+            const tbody = document.querySelector('#tablaOrden tbody');
+            tbody.innerHTML = "";
+            let total = 0;
+
+            Object.values(ordenActual).forEach(item => {
+                const subtotal = item.precio * item.cantidad;
+                total += subtotal;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${item.nombre}</td>
+                    <td>
+                        <div class="qty-controls">
+                            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', -1)">-</button>
+                            <span>${item.cantidad}</span>
+                            <button class="btn-qty" onclick="cambiarCantidad('${item.id}', 1)">+</button>
+                        </div>
+                    </td>
+                    <td>$${item.precio.toFixed(2)}</td>
+                    <td>$${subtotal.toFixed(2)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('txtTotal').innerText = total.toFixed(2);
+        }
+
+        function resetearPOS() {
+            ordenActual = {};
+            notaEnEdicionId = null;
+            document.getElementById('lblNotaModificando').innerText = "(Nueva Comanda)";
+            renderizarOrdenActual();
+        }
+
+        /* --- NOTAS POR COBRAR (PENDIENTES) --- */
+        function mandarAColaPendientes() {
+            if(Object.keys(ordenActual).length === 0) {
+                alert("La orden actual está vacía.");
+                return;
+            }
+
+            if(notaEnEdicionId !== null) {
+                const index = colaPendientes.findIndex(n => n.id === notaEnEdicionId);
+                if(index !== -1) {
+                    colaPendientes[index].items = {...ordenActual};
+                    colaPendientes[index].total = calcularTotalOrden(ordenActual);
+                }
+                alert("Nota actualizada.");
+            } else {
+                folioContador++;
+                colaPendientes.push({
+                    id: folioContador,
+                    cajero: usuarioLogueado,
+                    items: {...ordenActual},
+                    total: calcularTotalOrden(ordenActual),
+                    hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                });
+                alert("Nota guardada en pendientes.");
+            }
+
+            document.getElementById('lblCountPendientes').innerText = colaPendientes.length;
+            resetearPOS();
+        }
+
+        function calcularTotalOrden(orden) {
+            return Object.values(orden).reduce((sum, item) => sum + (item.precio * item.cantidad), 0);
+        }
+
+        function renderizarPendientes() {
+            const container = document.getElementById('containerPendientes');
+            container.innerHTML = "";
+
+            if(colaPendientes.length === 0) {
+                container.innerHTML = "<p>No hay comandas pendientes de cobro.</p>";
+                return;
+            }
+
+            colaPendientes.forEach(nota => {
+                const card = document.createElement('div');
+                card.className = "comanda-card";
+                
+                let detalleHtml = "";
+                Object.values(nota.items).forEach(item => {
+                    detalleHtml += `<div>• ${item.cantidad}x ${item.nombre}</div>`;
+                });
+
+                card.innerHTML = `
+                    <div class="comanda-card-header">
+                        <span>Folio: #${nota.id}</span>
+                        <span>${nota.hora}</span>
+                    </div>
+                    <div class="comanda-card-body">
+                        ${detalleHtml}
+                        <div style="font-weight:bold; margin-top:8px; text-align:right;">Total: $${nota.total.toFixed(2)}</div>
+                    </div>
+                    <div class="comanda-card-footer">
+                        <button class="btn-sm btn-secondary" onclick="editarNotaPendiente(${nota.id})"><i class="fa-solid fa-edit"></i> Editar</button>
+                        <button class="btn-sm" style="background-color: var(--green-success); color: white;" onclick="cobrarNotaPendiente(${nota.id})"><i class="fa-solid fa-check"></i> Cobrar</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function editarNotaPendiente(folio) {
+            const nota = colaPendientes.find(n => n.id === folio);
+            if(nota) {
+                ordenActual = {...nota.items};
+                notaEnEdicionId = nota.id;
+                document.getElementById('lblNotaModificando').innerText = `(Editando Folio #${nota.id})`;
+                renderizarOrdenActual();
+                switchTab('pos');
+            }
+        }
+
+        function cobrarNotaPendiente(folio) {
+            const index = colaPendientes.findIndex(n => n.id === folio);
+            if(index !== -1) {
+                const nota = colaPendientes[index];
+                if(descontarInventarioDeOrden(nota.items)) {
+                    historicoCobradas.push({
+                        id: nota.id,
+                        cajero: nota.cajero,
+                        total: nota.total,
+                        hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                        detalle: armarDetalleTexto(nota.items)
+                    });
+
+                    // Acumuladores de corte
+                    totalVentaDia += nota.total;
+                    totalOrdenesDia++;
+                    acumularMetricasCategorias(nota.items);
+
+                    colaPendientes.splice(index, 1);
+                    document.getElementById('lblCountPendientes').innerText = colaPendientes.length;
+                    alert("¡Nota cobrada con éxito!");
+                    renderizarPendientes();
+                }
+            }
+        }
+
+        function cobrarOrdenDirecto() {
+            if(Object.keys(ordenActual).length === 0) {
+                alert("Agrega artículos a la orden para cobrar.");
+                return;
+            }
+
+            if(descontarInventarioDeOrden(ordenActual)) {
+                folioContador++;
+                const total = calcularTotalOrden(ordenActual);
+                
+                historicoCobradas.push({
+                    id: folioContador,
+                    cajero: usuarioLogueado,
+                    total: total,
+                    hora: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                    detalle: armarDetalleTexto(ordenActual)
+                });
+
+                totalVentaDia += total;
+                totalOrdenesDia++;
+                acumularMetricasCategorias(ordenActual);
+
+                alert("¡Cobro directo procesado exitosamente!");
+                resetearPOS();
+            }
+        }
+
+        function armarDetalleTexto(orden) {
+            return Object.values(orden).map(item => `${item.cantidad}x ${item.nombre}`).join(", ");
+        }
+
+        function acumularMetricasCategorias(orden) {
+            Object.values(orden).forEach(item => {
+                if(metricasCorte[item.categoria]) {
+                    metricasCorte[item.categoria].cant += item.cantidad;
+                    metricasCorte[item.categoria].dinero += (item.precio * item.cantidad);
+                }
+            });
+        }
+
+        /* --- CONTROL DE INVENTARIO Y RECETAS --- */
+        function descontarInventarioDeOrden(orden) {
+            // Clonamos el inventario temporalmente para validar si hay stock suficiente antes de procesar mermas
+            let clonInventario = JSON.parse(JSON.stringify(inventarioInsumos));
+
+            for (const item of Object.values(orden)) {
+                const receta = RECETAS[item.categoria];
+                if(!receta) continue;
+
+                // Descontar Tortilla / Bolillo / Bebida terminada
+                if(receta.tortillas > 0) {
+                    clonInventario.tortillas.stock -= (receta.tortillas * item.cantidad);
+                }
+                if(receta.bolillo > 0) {
+                    clonInventario.bolillo.stock -= (receta.bolillo * item.cantidad);
+                }
+                if(receta.bebidas > 0) {
+                    clonInventario.bebidas.stock -= (receta.bebidas * item.cantidad);
+                }
+
+                // Extraer tipo de carne
+                if(receta.carnes > 0) {
+                    const carneNombre = item.id.split('_').pop(); // ej. 'arrachera' de 'taco_arrachera'
+                    if(clonInventario[carneNombre]) {
+                        clonInventario[carneNombre].stock -= (receta.carnes * item.cantidad);
+                    }
+                }
+
+                // Descuento de quesos si aplica (Tortas con queso o quesadillas)
+                if(item.id.includes("quesadilla") || item.id.includes("torta_con_")) {
+                    clonInventario.queso.stock -= (0.05 * item.cantidad); // 50g por item con queso
+                }
+            }
+
+            // Validar si algún stock es menor a 0
+            for (const insumoKey in clonInventario) {
+                if(clonInventario[insumoKey].stock < 0) {
+                    alert(`Operación fallida: Stock insuficiente de "${clonInventario[insumoKey].nombre}".`);
+                    return false;
+                }
+            }
+
+            // Aplicar mermas reales
+            inventarioInsumos = clonInventario;
+            return true;
+        }
+
+        function renderizarInventarioUI() {
+            const tbody = document.getElementById('tbodyInventario');
+            tbody.innerHTML = "";
+
+            Object.keys(inventarioInsumos).forEach(key => {
+                const ins = inventarioInsumos[key];
+                let badgeClass = "badge-success";
+                let badgeText = "Saludable";
+
+                if (ins.stock <= ins.limites.critico) {
+                    badgeClass = "badge-danger";
+                    badgeText = "Crítico (Abastecer)";
+                } else if (ins.stock <= ins.limites.advertencia) {
+                    badgeClass = "badge-warning";
+                    badgeText = "Bajo";
+                }
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${ins.nombre}</strong></td>
+                    <td>${ins.stock.toFixed(2)}</td>
+                    <td>${ins.unidad}</td>
+                    <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function agregarStockProveedor(event) {
+            event.preventDefault();
+            const insKey = document.getElementById('restockInsumo').value;
+            const cant = parseFloat(document.getElementById('restockCantidad').value);
+
+            if(inventarioInsumos[insKey] && cant > 0) {
+                inventarioInsumos[insKey].stock += cant;
+                alert(`Stock actualizado correctamente: +${cant} ${inventarioInsumos[insKey].unidad} a ${inventarioInsumos[insKey].nombre}`);
+                document.getElementById('formRestock').reset();
+                renderizarInventarioUI();
+            }
+        }
+
+        /* --- CONTROL DE PERSONAL (CRUD ACCESOS) --- */
+        function renderizarPersonal() {
+            const tbody = document.getElementById('tbodyPersonal');
+            tbody.innerHTML = "";
+
+            personal.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${emp.nombre}</td>
+                    <td>${emp.puesto}</td>
+                    <td><code>${emp.user}</code></td>
+                    <td>••••••</td>
+                    <td>
+                        <button class="btn-sm-edit" onclick="cargarEmpleadoEdicion(${emp.id})"><i class="fa-solid fa-edit"></i></button>
+                        <button class="btn-sm-delete" onclick="eliminarEmpleado(${emp.id})"><i class="fa-solid fa-trash"></i></button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function guardarEmpleado(event) {
+            event.preventDefault();
+            const idVal = document.getElementById('empId').value;
+            const nombre = document.getElementById('empNombre').value.trim();
+            const puesto = document.getElementById('empPuesto').value;
+            const user = document.getElementById('empUser').value.trim();
+            const pass = document.getElementById('empPass').value.trim();
+
+            if(idVal !== "") {
+                // Editar
+                const emp = personal.find(e => e.id == idVal);
+                if(emp) {
+                    emp.nombre = nombre;
+                    emp.puesto = puesto;
+                    emp.user = user;
+                    emp.pass = pass;
+                    alert("Empleado actualizado con éxito.");
+                }
+            } else {
+                // Agregar
+                const nuevoId = personal.length > 0 ? Math.max(...personal.map(p => p.id)) + 1 : 1;
+                personal.push({ id: nuevoId, nombre, puesto, user, pass });
+                alert("Nuevo empleado agregado.");
+            }
+
+            limpiarFormPersonal();
+            renderizarPersonal();
+        }
+
+        function cargarEmpleadoEdicion(id) {
+            const emp = personal.find(e => e.id === id);
+            if(emp) {
+                document.getElementById('empId').value = emp.id;
+                document.getElementById('empNombre').value = emp.nombre;
+                document.getElementById('empPuesto').value = emp.puesto;
+                document.getElementById('empUser').value = emp.user;
+                document.getElementById('empPass').value = emp.pass;
+
+                document.getElementById('lblFormPersonal').innerText = "Editar Usuario / Cuenta";
+                document.getElementById('btnCancelarEmp').style.display = "block";
+            }
+        }
+
+        function limpiarFormPersonal() {
+            document.getElementById('formEmpleado').reset();
+            document.getElementById('empId').value = "";
+            document.getElementById('lblFormPersonal').innerText = "Agregar Nuevo Usuario / Cuenta";
+            document.getElementById('btnCancelarEmp').style.display = "none";
+        }
+
+        function eliminarEmpleado(id) {
+            if(id === 1) {
+                alert("No se puede eliminar la cuenta del administrador raíz.");
+                return;
+            }
+            if(confirm("¿Seguro que deseas dar de baja a este usuario?")) {
+                personal = personal.filter(e => e.id !== id);
+                renderizarPersonal();
+            }
+        }
+
+        /* --- HISTORIAL COBRADAS --- */
+        function renderizarCobradas() {
+            const tbody = document.getElementById('tbodyCobradas');
+            tbody.innerHTML = "";
+
+            if(historicoCobradas.length === 0) {
+                tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>No se han cobrado notas en este turno.</td></tr>";
+                return;
+            }
+
+            historicoCobradas.forEach(nota => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>#${nota.id}</strong></td>
+                    <td>${nota.cajero}</td>
+                    <td>${nota.hora}</td>
+                    <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${nota.detalle}">${nota.detalle}</td>
+                    <td><strong>$${nota.total.toFixed(2)}</strong></td>
+                    <td>
+                        <button class="btn-sm btn-secondary" onclick="reimprimirTicketMock(${nota.id})"><i class="fa-solid fa-print"></i> Ticket</button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function reimprimirTicketMock(folio) {
+            const nota = historicoCobradas.find(n => n.id === folio);
+            if(nota) {
+                alert(`----- TICKET DE CONSUMO (RE-IMPRESIÓN) -----\nFolio: #${nota.id}\nHora: ${nota.hora}\nAtendió: ${nota.cajero}\n------------------------------\nDetalles:\n${nota.detalle.replace(/, /g, '\n')}\n------------------------------\nTotal Pagado: $${nota.total.toFixed(2)}\n¡Gracias por su visita!`);
+            }
+        }
+
+        /* --- CORTE DE CAJA --- */
+        function renderizarCorteUI() {
+            document.getElementById('txtVentaHistorica').innerText = totalVentaDia.toFixed(2);
+            document.getElementById('txtOrdenesCount').innerText = totalOrdenesDia;
+            document.getElementById('txtEfectivoCaja').innerText = (fondoFijoCaja + totalVentaDia).toFixed(2);
+
+            // Detalles por Categorías
+            document.getElementById('corte-cant-tacos').innerText = metricasCorte.tacos.cant;
+            document.getElementById('corte-dinero-tacos').innerText = metricasCorte.tacos.dinero.toFixed(2);
+
+            document.getElementById('corte-cant-tortas').innerText = metricasCorte.tortas.cant;
+            document.getElementById('corte-dinero-tortas').innerText = metricasCorte.tortas.dinero.toFixed(2);
+
+            document.getElementById('corte-cant-quesadillas').innerText = metricasCorte.quesadillas.cant;
+            document.getElementById('corte-dinero-quesadillas').innerText = metricasCorte.quesadillas.dinero.toFixed(2);
+
+            document.getElementById('corte-cant-bebidas').innerText = metricasCorte.bebidas.cant;
+            document.getElementById('corte-dinero-bebidas').innerText = metricasCorte.bebidas.dinero.toFixed(2);
+        }
+
+        function ejecutarCierreCaja() {
+            if(confirm("¿Deseas realizar el cierre definitivo del turno actual? Se restablecerán las ventas acumuladas a $0.00.")) {
+                alert(`******* CIERRE DE CAJA EXITOSO *******\nTurno cerrado por: ${usuarioLogueado}\nÓrdenes Cobradas: ${totalOrdenesDia}\nVentas Netas: $${totalVentaDia.toFixed(2)}\nEfectivo esperado en caja física: $${(fondoFijoCaja + totalVentaDia).toFixed(2)}`);
+                
+                // Reiniciar métricas
+                totalVentaDia = 0;
+                totalOrdenesDia = 0;
+                historicoCobradas = [];
+                colaPendientes = [];
+                document.getElementById('lblCountPendientes').innerText = "0";
+
+                metricasCorte = {
+                    tacos: { cant: 0, dinero: 0 },
+                    tortas: { cant: 0, dinero: 0 },
+                    quesadillas: { cant: 0, dinero: 0 },
+                    bebidas: { cant: 0, dinero: 0 }
+                };
+
+                resetearPOS();
+                switchTab('pos');
+            }
+        }
+    </script>
+</body>
+</html>
